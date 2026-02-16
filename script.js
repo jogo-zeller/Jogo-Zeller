@@ -1,111 +1,144 @@
+let gameState = "menu";
+
 let player = {
-    name: "",
-    clan: "",
-    maxHP: 100,
     hp: 100,
-    maxChakra: 50,
-    chakra: 50
+    maxHp: 100,
+    chakra: 30,
+    level: 1,
+    xp: 0,
+    xpToNext: 50,
+    gold: 0
 };
 
-let enemy = {
-    maxHP: 100,
-    hp: 100
-};
+let enemyTypes = [
+    { name: "Bandido", hp: 50, attack: 8, xp: 20, gold: 10 },
+    { name: "Ninja Renegado", hp: 70, attack: 12, xp: 35, gold: 20 },
+    { name: "Monstro da Névoa", hp: 90, attack: 15, xp: 50, gold: 30 }
+];
 
-function startGame() {
-    player.name = document.getElementById("nameInput").value;
-    player.clan = document.getElementById("clanSelect").value;
+let enemy;
 
-    if (player.name === "") {
-        alert("Digite seu nome!");
-        return;
-    }
-
-    document.getElementById("menu").classList.add("hidden");
-    document.getElementById("game").classList.remove("hidden");
-
-    document.getElementById("playerInfo").innerText =
-        player.name + " - Clã " + player.clan;
-
-    updateBars();
+function saveGame() {
+    localStorage.setItem("ninjaSave", JSON.stringify(player));
 }
 
-function updateBars() {
-    document.getElementById("playerHPBar").style.width =
-        (player.hp / player.maxHP) * 100 + "%";
+function loadGame() {
+    let save = localStorage.getItem("ninjaSave");
+    if (save) player = JSON.parse(save);
+}
 
-    document.getElementById("playerChakraBar").style.width =
-        (player.chakra / player.maxChakra) * 100 + "%";
+function spawnEnemy() {
+    let type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+    enemy = { ...type };
+}
 
-    document.getElementById("enemyHPBar").style.width =
-        (enemy.hp / enemy.maxHP) * 100 + "%";
+function render() {
+    const game = document.getElementById("game");
+
+    if (gameState === "menu") {
+        game.innerHTML = `
+            <h1>Ninja Zeller</h1>
+            <button onclick="startGame()">Iniciar</button>
+        `;
+    }
+
+    if (gameState === "map") {
+        game.innerHTML = `
+            <h2>Mapa</h2>
+            <p>💰 Ouro: ${player.gold}</p>
+            <button onclick="goBattle()">Explorar</button>
+            <button onclick="goShop()">Loja</button>
+            <button onclick="goMenu()">Voltar</button>
+        `;
+    }
+
+    if (gameState === "battle") {
+        game.innerHTML = `
+            <h2>Batalha</h2>
+            <p>❤️ ${player.hp}/${player.maxHp} | 🔵 ${player.chakra}</p>
+            <p>👹 ${enemy.name} - ❤️ ${enemy.hp}</p>
+            <button onclick="attack()">Atacar</button>
+            <button onclick="backToMap()">Fugir</button>
+        `;
+    }
+
+    if (gameState === "shop") {
+        game.innerHTML = `
+            <h2>Loja</h2>
+            <p>💰 ${player.gold}</p>
+            <button onclick="buyPotion()">Poção (20 ouro)</button>
+            <button onclick="backToMap()">Voltar</button>
+        `;
+    }
+}
+
+function startGame() {
+    loadGame();
+    gameState = "map";
+    render();
+}
+
+function goMenu() {
+    gameState = "menu";
+    render();
+}
+
+function goBattle() {
+    spawnEnemy();
+    gameState = "battle";
+    render();
+}
+
+function goShop() {
+    gameState = "shop";
+    render();
+}
+
+function backToMap() {
+    saveGame();
+    gameState = "map";
+    render();
 }
 
 function attack() {
     let damage = Math.floor(Math.random() * 15) + 5;
     enemy.hp -= damage;
 
-    log("Você causou " + damage + " de dano!");
-
-    enemyTurn();
-    checkBattle();
-    updateBars();
-}
-
-function special() {
-    if (player.chakra < 10) {
-        log("Chakra insuficiente!");
-        return;
-    }
-
-    let damage = Math.floor(Math.random() * 30) + 10;
-    enemy.hp -= damage;
-    player.chakra -= 10;
-
-    log("Ataque especial causou " + damage + " de dano!");
-
-    enemyTurn();
-    checkBattle();
-    updateBars();
-}
-
-function heal() {
-    if (player.chakra < 5) {
-        log("Chakra insuficiente!");
-        return;
-    }
-
-    let healAmount = Math.floor(Math.random() * 20) + 10;
-    player.hp += healAmount;
-    player.chakra -= 5;
-
-    if (player.hp > player.maxHP) player.hp = player.maxHP;
-
-    log("Você recuperou " + healAmount + " de vida!");
-
-    enemyTurn();
-    updateBars();
-}
-
-function enemyTurn() {
-    let damage = Math.floor(Math.random() * 12) + 5;
-    player.hp -= damage;
-
-    if (player.hp < 0) player.hp = 0;
-}
-
-function checkBattle() {
     if (enemy.hp <= 0) {
-        alert("Você venceu!");
-        enemy.hp = enemy.maxHP;
+        player.xp += enemy.xp;
+        player.gold += enemy.gold;
+        levelUpCheck();
+        saveGame();
+        gameState = "map";
+    } else {
+        player.hp -= enemy.attack;
+        if (player.hp <= 0) {
+            player.hp = player.maxHp;
+            gameState = "menu";
+        }
     }
 
-    if (player.hp <= 0) {
-        alert("Game Over!");
-        location.reload();
+    render();
+}
+
+function levelUpCheck() {
+    if (player.xp >= player.xpToNext) {
+        player.xp -= player.xpToNext;
+        player.level++;
+        player.maxHp += 20;
+        player.hp = player.maxHp;
+        player.xpToNext += 30;
+        alert("LEVEL UP!");
     }
 }
 
-function log(text) {
-    document.getElementById("log").innerText = text;
+function buyPotion() {
+    if (player.gold >= 20) {
+        player.gold -= 20;
+        player.hp = player.maxHp;
+        saveGame();
+        render();
+    }
 }
+
+render();
