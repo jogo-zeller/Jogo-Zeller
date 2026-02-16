@@ -1,94 +1,103 @@
 let player = {
-    name: "Ninja",
+    name: "",
+    clan: "",
+    maxHP: 100,
     hp: 100,
-    chakra: 50,
-    level: 1,
-    xp: 0
+    maxChakra: 50,
+    chakra: 50
 };
 
 let enemy = {
-    hp: 80
+    maxHP: 100,
+    hp: 100
 };
 
 function startGame() {
+    player.name = document.getElementById("nameInput").value;
+    player.clan = document.getElementById("clanSelect").value;
+
+    if (player.name === "") {
+        alert("Digite seu nome!");
+        return;
+    }
+
     document.getElementById("menu").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
 
-    updateUI();
+    document.getElementById("playerInfo").innerText =
+        player.name + " - Clã " + player.clan;
+
+    updateBars();
 }
 
-function updateUI() {
-    document.getElementById("playerName").innerText = player.name;
-    document.getElementById("playerHP").innerText = player.hp;
-    document.getElementById("playerChakra").innerText = player.chakra;
-    document.getElementById("playerLevel").innerText = player.level;
-    document.getElementById("enemyHP").innerText = enemy.hp;
+function updateBars() {
+    document.getElementById("playerHPBar").style.width =
+        (player.hp / player.maxHP) * 100 + "%";
+
+    document.getElementById("playerChakraBar").style.width =
+        (player.chakra / player.maxChakra) * 100 + "%";
+
+    document.getElementById("enemyHPBar").style.width =
+        (enemy.hp / enemy.maxHP) * 100 + "%";
 }
 
 function attack() {
     let damage = Math.floor(Math.random() * 15) + 5;
     enemy.hp -= damage;
 
-    document.getElementById("log").innerText = 
-        "Você causou " + damage + " de dano!";
+    log("Você causou " + damage + " de dano!");
 
     enemyTurn();
     checkBattle();
-    updateUI();
+    updateBars();
 }
 
 function special() {
-    if (player.chakra >= 10) {
-        let damage = Math.floor(Math.random() * 25) + 10;
-        enemy.hp -= damage;
-        player.chakra -= 10;
-
-        document.getElementById("log").innerText = 
-            "Jutsu causou " + damage + " de dano!";
-    } else {
-        document.getElementById("log").innerText = 
-            "Chakra insuficiente!";
+    if (player.chakra < 10) {
+        log("Chakra insuficiente!");
         return;
     }
+
+    let damage = Math.floor(Math.random() * 30) + 10;
+    enemy.hp -= damage;
+    player.chakra -= 10;
+
+    log("Ataque especial causou " + damage + " de dano!");
 
     enemyTurn();
     checkBattle();
-    updateUI();
+    updateBars();
 }
 
 function heal() {
-    if (player.chakra >= 5) {
-        let healAmount = Math.floor(Math.random() * 20) + 10;
-        player.hp += healAmount;
-        player.chakra -= 5;
-
-        document.getElementById("log").innerText = 
-            "Você curou " + healAmount + " de vida!";
-    } else {
-        document.getElementById("log").innerText = 
-            "Chakra insuficiente!";
+    if (player.chakra < 5) {
+        log("Chakra insuficiente!");
         return;
     }
 
+    let healAmount = Math.floor(Math.random() * 20) + 10;
+    player.hp += healAmount;
+    player.chakra -= 5;
+
+    if (player.hp > player.maxHP) player.hp = player.maxHP;
+
+    log("Você recuperou " + healAmount + " de vida!");
+
     enemyTurn();
-    updateUI();
+    updateBars();
 }
 
 function enemyTurn() {
     let damage = Math.floor(Math.random() * 12) + 5;
     player.hp -= damage;
+
+    if (player.hp < 0) player.hp = 0;
 }
 
 function checkBattle() {
     if (enemy.hp <= 0) {
-        player.xp += 20;
-        enemy.hp = 80;
-        document.getElementById("log").innerText = 
-            "Você venceu! +20 XP";
-
-        if (player.xp >= 50) {
-            levelUp();
-        }
+        alert("Você venceu!");
+        enemy.hp = enemy.maxHP;
     }
 
     if (player.hp <= 0) {
@@ -97,10 +106,6 @@ function checkBattle() {
     }
 }
 
-function levelUp() {
-    player.level++;
-    player.hp += 30;
-    player.chakra += 20;
-    player.xp = 0;
-    alert("Você subiu de nível!");
+function log(text) {
+    document.getElementById("log").innerText = text;
 }
