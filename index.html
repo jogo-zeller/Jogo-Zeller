@@ -7,28 +7,46 @@
 <body>
 
 <div id="menu">
-    <h1>Shadow Legacy</h1>
-    <button onclick="startGame()">Iniciar Jogo</button>
+    <h1>🔥 Shadow Legacy 🔥</h1>
+    <input type="text" id="nameInput" placeholder="Digite seu nome">
+    
+    <select id="clanSelect">
+        <option value="Fogo">Clã do Fogo</option>
+        <option value="Raio">Clã do Raio</option>
+        <option value="Sombras">Clã das Sombras</option>
+    </select>
+    
+    <button onclick="startGame()">Entrar na Batalha</button>
 </div>
 
 <div id="game" class="hidden">
-    <h2 id="playerName"></h2>
 
-    <div class="stats">
-        <p>❤️ Vida: <span id="playerHP"></span></p>
-        <p>🔵 Chakra: <span id="playerChakra"></span></p>
-        <p>⭐ Nível: <span id="playerLevel"></span></p>
+    <h2 id="playerInfo"></h2>
+
+    <div class="bar-container">
+        <label>Vida</label>
+        <div class="bar">
+            <div id="playerHPBar" class="hp-bar"></div>
+        </div>
     </div>
 
-    <hr>
+    <div class="bar-container">
+        <label>Chakra</label>
+        <div class="bar">
+            <div id="playerChakraBar" class="chakra-bar"></div>
+        </div>
+    </div>
 
     <h3>Inimigo</h3>
-    <p>❤️ Vida: <span id="enemyHP"></span></p>
+
+    <div class="bar">
+        <div id="enemyHPBar" class="enemy-bar"></div>
+    </div>
 
     <div class="buttons">
-        <button onclick="attack()">Atacar</button>
-        <button onclick="special()">Jutsu Especial</button>
-        <button onclick="heal()">Curar</button>
+        <button onclick="attack()">⚔️ Atacar</button>
+        <button onclick="special()">🔥 Especial</button>
+        <button onclick="heal()">💚 Curar</button>
     </div>
 
     <p id="log"></p>
