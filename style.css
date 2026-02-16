@@ -1,6 +1,6 @@
 body {
     font-family: Arial;
-    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+    background: linear-gradient(to right, #141e30, #243b55);
     color: white;
     text-align: center;
 }
@@ -9,26 +9,60 @@ body {
     display: none;
 }
 
+#menu {
+    margin-top: 100px;
+}
+
+input, select {
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    border: none;
+}
+
 button {
-    padding: 10px 20px;
-    margin: 5px;
+    padding: 12px 20px;
+    margin: 10px;
     border: none;
     background: #ff4757;
     color: white;
     font-weight: bold;
     cursor: pointer;
     border-radius: 8px;
+    transition: 0.2s;
 }
 
 button:hover {
-    background: #ff6b81;
+    transform: scale(1.1);
 }
 
-.stats {
-    margin: 20px;
+.bar-container {
+    margin: 15px;
 }
 
-#log {
-    margin-top: 20px;
-    font-weight: bold;
+.bar {
+    width: 300px;
+    height: 20px;
+    background: #333;
+    margin: 0 auto;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.hp-bar {
+    height: 100%;
+    background: red;
+    width: 100%;
+}
+
+.chakra-bar {
+    height: 100%;
+    background: blue;
+    width: 100%;
+}
+
+.enemy-bar {
+    height: 100%;
+    background: darkred;
+    width: 100%;
 }
