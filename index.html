@@ -1,57 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <title>Shadow Legacy RPG</title>
+    <meta charset="UTF-8">
+    <title>Ninja Zeller</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="menu">
-    <h1>🔥 Shadow Legacy 🔥</h1>
-    <input type="text" id="nameInput" placeholder="Digite seu nome">
-    
-    <select id="clanSelect">
-        <option value="Fogo">Clã do Fogo</option>
-        <option value="Raio">Clã do Raio</option>
-        <option value="Sombras">Clã das Sombras</option>
-    </select>
-    
-    <button onclick="startGame()">Entrar na Batalha</button>
-</div>
+    <div id="game"></div>
 
-<div id="game" class="hidden">
-
-    <h2 id="playerInfo"></h2>
-
-    <div class="bar-container">
-        <label>Vida</label>
-        <div class="bar">
-            <div id="playerHPBar" class="hp-bar"></div>
-        </div>
-    </div>
-
-    <div class="bar-container">
-        <label>Chakra</label>
-        <div class="bar">
-            <div id="playerChakraBar" class="chakra-bar"></div>
-        </div>
-    </div>
-
-    <h3>Inimigo</h3>
-
-    <div class="bar">
-        <div id="enemyHPBar" class="enemy-bar"></div>
-    </div>
-
-    <div class="buttons">
-        <button onclick="attack()">⚔️ Atacar</button>
-        <button onclick="special()">🔥 Especial</button>
-        <button onclick="heal()">💚 Curar</button>
-    </div>
-
-    <p id="log"></p>
-</div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
