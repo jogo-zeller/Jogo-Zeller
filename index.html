@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shadow Legacy RPG</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="menu">
+    <h1>Shadow Legacy</h1>
+    <button onclick="startGame()">Iniciar Jogo</button>
+</div>
+
+<div id="game" class="hidden">
+    <h2 id="playerName"></h2>
+
+    <div class="stats">
+        <p>❤️ Vida: <span id="playerHP"></span></p>
+        <p>🔵 Chakra: <span id="playerChakra"></span></p>
+        <p>⭐ Nível: <span id="playerLevel"></span></p>
+    </div>
+
+    <hr>
+
+    <h3>Inimigo</h3>
+    <p>❤️ Vida: <span id="enemyHP"></span></p>
+
+    <div class="buttons">
+        <button onclick="attack()">Atacar</button>
+        <button onclick="special()">Jutsu Especial</button>
+        <button onclick="heal()">Curar</button>
+    </div>
+
+    <p id="log"></p>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
