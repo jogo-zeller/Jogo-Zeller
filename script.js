@@ -59,13 +59,18 @@ function render() {
     if (gameState === "battle") {
 
         let playerPercent = (player.hp / player.maxHp) * 100;
-        let enemyPercent = (enemy.hp / enemyTypes.find(e => e.name === enemy.name).hp) * 100;
+        let enemyMaxHp = enemyTypes.find(e => e.name === enemy.name).hp;
+        let enemyPercent = (enemy.hp / enemyMaxHp) * 100;
         let chakraPercent = (player.chakra / player.maxChakra) * 100;
 
         game.innerHTML = `
             <h2>Batalha</h2>
 
-            <p>Jogador</p>
+            <div class="character">
+                <img src="https://i.imgur.com/6X4Z6Qx.png" class="sprite" id="playerSprite">
+                <p>Jogador</p>
+            </div>
+
             <div class="bar">
                 <div class="fill" style="width:${playerPercent}%"></div>
             </div>
@@ -74,7 +79,11 @@ function render() {
                 <div class="fill" style="width:${chakraPercent}%; background:#3498db;"></div>
             </div>
 
-            <p>${enemy.name}</p>
+            <div class="character">
+                <img src="https://i.imgur.com/Z6X7Y8L.png" class="sprite enemy" id="enemySprite">
+                <p>${enemy.name}</p>
+            </div>
+
             <div class="bar">
                 <div class="fill enemy-fill" style="width:${enemyPercent}%"></div>
             </div>
@@ -136,6 +145,13 @@ function attack() {
 
     enemy.hp -= damage;
 
+    // animação no inimigo
+    let enemySprite = document.getElementById("enemySprite");
+    enemySprite.style.transform = "scale(1.2)";
+    setTimeout(() => {
+        enemySprite.style.transform = "scaleX(-1)";
+    }, 200);
+
     if (enemy.hp <= 0) {
         winBattle();
         return;
@@ -166,10 +182,9 @@ function special() {
 function enemyAttack() {
     player.hp -= enemy.attack;
 
-    document.getElementById("game").classList.add("shake");
-    setTimeout(() => {
-        document.getElementById("game").classList.remove("shake");
-    }, 300);
+    let game = document.getElementById("game");
+    game.classList.add("shake");
+    setTimeout(() => game.classList.remove("shake"), 300);
 
     if (player.hp <= 0) {
         player.hp = player.maxHp;
@@ -181,7 +196,6 @@ function enemyAttack() {
 function winBattle() {
     player.xp += enemy.xp;
     player.gold += enemy.gold;
-
     player.chakra = player.maxChakra;
 
     levelUpCheck();
