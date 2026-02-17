@@ -4,6 +4,7 @@ let player = {
     hp: 100,
     maxHp: 100,
     chakra: 30,
+    maxChakra: 30,
     level: 1,
     xp: 0,
     xpToNext: 50,
@@ -17,6 +18,9 @@ let enemyTypes = [
 ];
 
 let enemy;
+
+let attackSound = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
+let levelUpSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
 
 function saveGame() {
     localStorage.setItem("ninjaSave", JSON.stringify(player));
@@ -45,7 +49,7 @@ function render() {
     if (gameState === "map") {
         game.innerHTML = `
             <h2>Mapa</h2>
-            <p>💰 Ouro: ${player.gold}</p>
+            <p>⭐ Nível ${player.level} | 💰 ${player.gold} | XP ${player.xp}/${player.xpToNext}</p>
             <button onclick="goBattle()">Explorar</button>
             <button onclick="goShop()">Loja</button>
             <button onclick="goMenu()">Voltar</button>
@@ -53,11 +57,30 @@ function render() {
     }
 
     if (gameState === "battle") {
+
+        let playerPercent = (player.hp / player.maxHp) * 100;
+        let enemyPercent = (enemy.hp / enemyTypes.find(e => e.name === enemy.name).hp) * 100;
+        let chakraPercent = (player.chakra / player.maxChakra) * 100;
+
         game.innerHTML = `
             <h2>Batalha</h2>
-            <p>❤️ ${player.hp}/${player.maxHp} | 🔵 ${player.chakra}</p>
-            <p>👹 ${enemy.name} - ❤️ ${enemy.hp}</p>
+
+            <p>Jogador</p>
+            <div class="bar">
+                <div class="fill" style="width:${playerPercent}%"></div>
+            </div>
+
+            <div class="bar">
+                <div class="fill" style="width:${chakraPercent}%; background:#3498db;"></div>
+            </div>
+
+            <p>${enemy.name}</p>
+            <div class="bar">
+                <div class="fill enemy-fill" style="width:${enemyPercent}%"></div>
+            </div>
+
             <button onclick="attack()">Atacar</button>
+            <button onclick="special()">Jutsu (10 chakra)</button>
             <button onclick="backToMap()">Fugir</button>
         `;
     }
@@ -66,7 +89,8 @@ function render() {
         game.innerHTML = `
             <h2>Loja</h2>
             <p>💰 ${player.gold}</p>
-            <button onclick="buyPotion()">Poção (20 ouro)</button>
+            <button onclick="buyPotion()">Poção Vida (20 ouro)</button>
+            <button onclick="buyChakra()">Poção Chakra (15 ouro)</button>
             <button onclick="backToMap()">Voltar</button>
         `;
     }
@@ -101,23 +125,68 @@ function backToMap() {
 }
 
 function attack() {
+    attackSound.play();
+
     let damage = Math.floor(Math.random() * 15) + 5;
+
+    if (Math.random() < 0.2) {
+        damage *= 2;
+        alert("CRÍTICO!");
+    }
+
     enemy.hp -= damage;
 
     if (enemy.hp <= 0) {
-        player.xp += enemy.xp;
-        player.gold += enemy.gold;
-        levelUpCheck();
-        saveGame();
-        gameState = "map";
-    } else {
-        player.hp -= enemy.attack;
-        if (player.hp <= 0) {
-            player.hp = player.maxHp;
-            gameState = "menu";
-        }
+        winBattle();
+        return;
     }
 
+    enemyAttack();
+    render();
+}
+
+function special() {
+    if (player.chakra < 10) return;
+
+    player.chakra -= 10;
+    attackSound.play();
+
+    let damage = Math.floor(Math.random() * 25) + 15;
+    enemy.hp -= damage;
+
+    if (enemy.hp <= 0) {
+        winBattle();
+        return;
+    }
+
+    enemyAttack();
+    render();
+}
+
+function enemyAttack() {
+    player.hp -= enemy.attack;
+
+    document.getElementById("game").classList.add("shake");
+    setTimeout(() => {
+        document.getElementById("game").classList.remove("shake");
+    }, 300);
+
+    if (player.hp <= 0) {
+        player.hp = player.maxHp;
+        player.chakra = player.maxChakra;
+        gameState = "menu";
+    }
+}
+
+function winBattle() {
+    player.xp += enemy.xp;
+    player.gold += enemy.gold;
+
+    player.chakra = player.maxChakra;
+
+    levelUpCheck();
+    saveGame();
+    gameState = "map";
     render();
 }
 
@@ -126,8 +195,12 @@ function levelUpCheck() {
         player.xp -= player.xpToNext;
         player.level++;
         player.maxHp += 20;
+        player.maxChakra += 5;
         player.hp = player.maxHp;
+        player.chakra = player.maxChakra;
         player.xpToNext += 30;
+
+        levelUpSound.play();
         alert("LEVEL UP!");
     }
 }
@@ -136,6 +209,15 @@ function buyPotion() {
     if (player.gold >= 20) {
         player.gold -= 20;
         player.hp = player.maxHp;
+        saveGame();
+        render();
+    }
+}
+
+function buyChakra() {
+    if (player.gold >= 15) {
+        player.gold -= 15;
+        player.chakra = player.maxChakra;
         saveGame();
         render();
     }
